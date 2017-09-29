@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 project(teleop_twist_joy)
+include (GenerateExportHeader)
 
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
@@ -19,6 +20,16 @@ find_package(sensor_msgs REQUIRED)
 include_directories(include)
 
 add_library(${PROJECT_NAME} src/${PROJECT_NAME})
+GENERATE_EXPORT_HEADER( ${PROJECT_NAME}
+             BASE_NAME ${PROJECT_NAME}
+             EXPORT_MACRO_NAME ${PROJECT_NAME}_EXPORT
+             EXPORT_FILE_NAME ${PROJECT_NAME}_Export.h
+             STATIC_DEFINE ${PROJECT_NAME}_BUILT_AS_STATIC
+)
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL "WindowsStore")
+  set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/D_WINRT_DLL")
+endif()
 
 ament_target_dependencies(${PROJECT_NAME}
   "geometry_msgs"
@@ -28,8 +39,10 @@ ament_target_dependencies(${PROJECT_NAME}
 
 add_executable(${PROJECT_NAME}_node src/teleop_node.cpp)
 target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME})
-set_target_properties(${PROJECT_NAME}_node
-  PROPERTIES OUTPUT_NAME teleop_node PREFIX "")
+if(NOT ${CMAKE_SYSTEM_NAME} STREQUAL "WindowsStore")
+  set_target_properties(${PROJECT_NAME}_node
+    PROPERTIES OUTPUT_NAME teleop_node PREFIX "")
+endif()
 
 install(TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
