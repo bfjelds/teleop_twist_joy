@@ -27,13 +27,19 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 #include <rclcpp/rclcpp.hpp>
 
+#if defined (_WIN32) 
+  #define  MYLIB_EXPORT __declspec(dllexport)
+#else /* defined (_WIN32) */
+  #define MYLIB_EXPORT
+#endif
+
 namespace teleop_twist_joy
 {
 
 /**
  * Class implementing a basic Joy -> Twist translation.
  */
-class TeleopTwistJoy
+class MYLIB_EXPORT TeleopTwistJoy
 {
 public:
   TeleopTwistJoy(rclcpp::node::Node::SharedPtr & node);
